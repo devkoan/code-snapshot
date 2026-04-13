@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About — Code Snapshot | devkoan</title>
+<meta name="description" content="Code Snapshot은 코드를 아름다운 이미지로 바꿔주는 무료 웹 도구입니다. 문법 강조, 라인 하이라이트, diff 뷰, 콜아웃 주석을 지원합니다.">
+<meta property="og:title" content="About — Code Snapshot | devkoan">
+<meta property="og:description" content="코드를 공유 가능한 이미지로 만드는 가장 빠른 방법.">
+<meta property="og:url" content="https://devkoan.github.io/code-snapshot/about.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:      #07090d;
+  --bg2:     #0c0f15;
+  --surface: #101520;
+  --surface2:#141926;
+  --border:  #1c2535;
+  --border2: #232f42;
+  --text:    #c8d8f0;
+  --text2:   #5a7090;
+  --text3:   #283040;
+  --accent:  #57e5c8;
+  --accent2: #3bbfaa;
+  --yellow:  #f5c842;
+  --green:   #3ddc84;
+  --red:     #ff5f6b;
+  --mono:    'JetBrains Mono', monospace;
+  --sans:    'DM Sans', sans-serif;
+}
+
+*,*::before,*::after { margin:0; padding:0; box-sizing:border-box; }
+html,body { min-height:100%; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  line-height: 1.6;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+header {
+  height: 44px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1.25rem;
+  background: var(--bg2);
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.logo {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--accent);
+  text-decoration: none;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.nav-links {
+  display: flex;
+  gap: 1.25rem;
+  align-items: center;
+}
+.nav-links a {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  color: var(--text2);
+  text-decoration: none;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: color 0.15s;
+}
+.nav-links a:hover { color: var(--accent); }
+.nav-links a.cta {
+  background: var(--accent);
+  color: var(--bg);
+  padding: 0.35rem 0.75rem;
+  border-radius: 3px;
+  font-weight: 700;
+}
+.nav-links a.cta:hover { background: var(--accent2); color: var(--bg); }
+
+main {
+  flex: 1;
+  max-width: 780px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 4rem 1.5rem 3rem;
+}
+
+.eyebrow {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  color: var(--accent);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+
+h1 {
+  font-size: 2.25rem;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  margin-bottom: 1rem;
+}
+
+.lede {
+  font-size: 1.05rem;
+  color: var(--text2);
+  margin-bottom: 2.5rem;
+  max-width: 62ch;
+}
+
+h2 {
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin: 2.5rem 0 1rem;
+  color: var(--text);
+  border-left: 2px solid var(--accent);
+  padding-left: 0.75rem;
+}
+
+p {
+  color: var(--text2);
+  margin-bottom: 1rem;
+  font-size: 0.92rem;
+}
+
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 0.75rem;
+  margin: 1rem 0 0.5rem;
+}
+
+.feature {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.9rem 1rem;
+  transition: border-color 0.15s, transform 0.15s;
+}
+.feature:hover {
+  border-color: var(--border2);
+  transform: translateY(-1px);
+}
+
+.feature-title {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 0.35rem;
+}
+.feature-desc {
+  font-size: 0.82rem;
+  color: var(--text2);
+  line-height: 1.5;
+}
+
+ol, ul {
+  margin: 0.75rem 0 1rem 1.25rem;
+  color: var(--text2);
+}
+li {
+  font-size: 0.92rem;
+  margin-bottom: 0.4rem;
+}
+
+kbd {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 3px;
+  padding: 0.1rem 0.4rem;
+  color: var(--text);
+}
+
+.cta-block {
+  margin-top: 3rem;
+  padding: 1.5rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  text-align: center;
+}
+.cta-block h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+.cta-block p { margin-bottom: 1rem; }
+.btn-primary {
+  display: inline-block;
+  background: var(--accent);
+  color: var(--bg);
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
+  padding: 0.7rem 1.4rem;
+  border-radius: 3px;
+  transition: background 0.15s;
+}
+.btn-primary:hover { background: var(--accent2); }
+
+footer {
+  border-top: 1px solid var(--border);
+  background: var(--bg2);
+  padding: 1.25rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+.footer-links {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.footer-links a {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  color: var(--text2);
+  text-decoration: none;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: color 0.15s;
+}
+.footer-links a:hover { color: var(--accent); }
+.footer-copy {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  color: var(--text3);
+  letter-spacing: 0.06em;
+}
+
+@media (max-width: 600px) {
+  h1 { font-size: 1.7rem; }
+  main { padding: 2.5rem 1.25rem; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <a href="./" class="logo">devkoan</a>
+  <nav class="nav-links">
+    <a href="https://devkoan.substack.com" target="_blank">Newsletter</a>
+    <a href="./" class="cta">Launch App</a>
+  </nav>
+</header>
+
+<main>
+  <div class="eyebrow">About · Code Snapshot</div>
+  <h1>코드를 아름다운 이미지로.</h1>
+  <p class="lede">
+    Code Snapshot은 소스 코드를 공유하기 좋은 이미지로 변환해주는 무료 웹 도구입니다.
+    블로그, 발표 자료, SNS, PR 리뷰 — 코드를 스크린샷으로 남겨야 할 모든 순간에 쓰세요.
+    계정도, 설치도, 업로드도 필요 없습니다.
+  </p>
+
+  <h2>왜 만들었나</h2>
+  <p>
+    개발자는 하루에도 몇 번씩 코드를 이미지로 공유합니다. 하지만 대부분의 도구는
+    가입이 필요하거나, 서버로 코드를 업로드하거나, 원하는 하이라이트·주석 기능이 부족합니다.
+    Code Snapshot은 단일 HTML 파일로 브라우저 안에서 전부 동작합니다 —
+    코드는 절대 디바이스를 떠나지 않습니다.
+  </p>
+
+  <h2>주요 기능</h2>
+  <div class="feature-grid">
+    <div class="feature">
+      <div class="feature-title">Syntax Highlight</div>
+      <div class="feature-desc">Swift, Python, JS/TS, Kotlin, Java, Go, Rust, CSS, Bash 지원.</div>
+    </div>
+    <div class="feature">
+      <div class="feature-title">Line Highlight</div>
+      <div class="feature-desc">특정 라인을 지정 색상으로 강조. 포인트 전달이 쉬워집니다.</div>
+    </div>
+    <div class="feature">
+      <div class="feature-title">Diff View</div>
+      <div class="feature-desc">추가/삭제된 라인을 한눈에. 리뷰나 before/after 공유에 적합.</div>
+    </div>
+    <div class="feature">
+      <div class="feature-title">Callout 주석</div>
+      <div class="feature-desc">코드 위에 말풍선 형태의 설명을 달 수 있습니다.</div>
+    </div>
+    <div class="feature">
+      <div class="feature-title">4가지 테마</div>
+      <div class="feature-desc">Dark, Light, Gradient, Ocean — 상황에 맞게 선택.</div>
+    </div>
+    <div class="feature">
+      <div class="feature-title">윈도우 스타일</div>
+      <div class="feature-desc">macOS / Minimal / None — 원하는 창 프레임을 골라 쓸 수 있습니다.</div>
+    </div>
+    <div class="feature">
+      <div class="feature-title">세밀한 레이아웃</div>
+      <div class="feature-desc">패딩, 폰트 크기, 프리뷰 너비를 자유롭게 조절.</div>
+    </div>
+    <div class="feature">
+      <div class="feature-title">3x PNG 내보내기</div>
+      <div class="feature-desc">고해상도 PNG로 저장하거나 클립보드로 바로 복사.</div>
+    </div>
+  </div>
+
+  <h2>사용 방법</h2>
+  <ol>
+    <li>홈 화면에서 코드를 붙여 넣거나 예시 코드를 수정합니다.</li>
+    <li>좌측 패널에서 언어, 테마, 윈도우 스타일, 패딩을 설정합니다.</li>
+    <li>필요하면 라인 하이라이트·diff·콜아웃을 추가합니다.</li>
+    <li><kbd>Copy PNG</kbd> 또는 <kbd>Save PNG</kbd> 버튼으로 내보냅니다.</li>
+  </ol>
+
+  <h2>프라이버시</h2>
+  <p>
+    모든 렌더링은 브라우저에서 일어납니다. 서버로 코드를 보내지 않고,
+    계정이나 쿠키 기반 추적도 사용하지 않습니다. 폐쇄망 환경에서도
+    외부 폰트·스크립트를 캐싱한 뒤 오프라인으로 쓸 수 있습니다.
+  </p>
+
+  <h2>오픈소스</h2>
+  <p>
+    Code Snapshot은 단일 <code>index.html</code>로 빌드 단계가 없습니다.
+    GitHub에서 소스를 확인하거나 포크해서 자신의 스타일로 커스터마이즈할 수 있습니다.
+  </p>
+
+  <div class="cta-block">
+    <h3>바로 써보세요</h3>
+    <p>설치, 가입, 결제 전부 없습니다.</p>
+    <a href="./" class="btn-primary">Launch Code Snapshot →</a>
+  </div>
+</main>
+
+<footer>
+  <div class="footer-links">
+    <a href="./">Home</a>
+    <a href="https://devkoan.substack.com" target="_blank">Newsletter</a>
+    <a href="https://github.com/devkoan/code-snapshot" target="_blank">GitHub</a>
+    <a href="https://devkoan.github.io/devkoan-tools/">All Tools</a>
+  </div>
+  <span class="footer-copy">devkoan © 2026 · Free, no account</span>
+</footer>
+
+</body>
+</html>

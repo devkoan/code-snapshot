@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Code Snapshot — Beautiful Code Images for Developers | devkoan</title>
+<meta name="description" content="Turn your code into beautiful shareable images. Syntax highlighting, line highlights, diff view, callout bubbles. Free tool for developers.">
+<meta name="keywords" content="code screenshot tool, code to image, syntax highlight screenshot, code snapshot generator, share code as image, developer tool">
+<meta property="og:title" content="Code Snapshot — devkoan">
+<meta property="og:description" content="Turn your code into beautiful shareable images. Free, no account.">
+<meta property="og:url" content="https://devkoan.github.io/code-snapshot/">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+:root {
+  --bg:      #07090d;
+  --bg2:     #0c0f15;
+  --surface: #101520;
+  --surface2:#141926;
+  --border:  #1c2535;
+  --border2: #232f42;
+  --text:    #c8d8f0;
+  --text2:   #5a7090;
+  --text3:   #283040;
+  --accent:  #57e5c8;
+  --accent2: #3bbfaa;
+  --yellow:  #f5c842;
+  --green:   #3ddc84;
+  --red:     #ff5f6b;
+  --mono:    'JetBrains Mono', monospace;
+  --sans:    'DM Sans', sans-serif;
+}
+
+*,*::before,*::after { margin:0; padding:0; box-sizing:border-box; }
+html,body { height:100%; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ── Header ── */
+header {
+  height: 44px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1.25rem;
+  background: var(--bg2);
+  flex-shrink: 0;
+  gap: 1rem;
+}
+
+.logo {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--accent);
+  text-decoration: none;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.header-center {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+  justify-content: center;
+}
+
+/* Language select */
+.lang-select {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 3px;
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  padding: 0.3rem 0.5rem;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.lang-select:focus { border-color: var(--accent); }
+
+/* Filename input */
+.filename-input {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 3px;
+  color: var(--text2);
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  padding: 0.3rem 0.6rem;
+  outline: none;
+  width: 160px;
+  transition: border-color 0.15s, color 0.15s;
+}
+.filename-input:focus { border-color: var(--accent); color: var(--text); }
+
+/* Theme pills */
+.theme-pills { display: flex; gap: 3px; }
+.theme-pill {
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  padding: 0.28rem 0.6rem;
+  border-radius: 2px;
+  border: 1px solid var(--border2);
+  background: transparent;
+  color: var(--text2);
+  cursor: pointer;
+  transition: all 0.15s;
+  letter-spacing: 0.06em;
+}
+.theme-pill.active { background: var(--accent); border-color: var(--accent); color: var(--bg); font-weight: 700; }
+
+.header-right { display: flex; gap: 0.5rem; flex-shrink: 0; }
+
+.hbtn {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.3rem 0.75rem;
+  border-radius: 2px;
+  border: 1px solid var(--border2);
+  background: transparent;
+  color: var(--text2);
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.hbtn:hover { border-color: var(--text2); color: var(--text); }
+.hbtn.primary { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+.hbtn.primary:hover { background: var(--accent2); border-color: var(--accent2); }
+
+/* ── Body layout ── */
+.body {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  overflow: hidden;
+}
+
+/* ── Left panel ── */
+.left {
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  background: var(--bg2);
+  overflow: hidden;
+}
+
+.left-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.875rem;
+}
+
+.left-scroll::-webkit-scrollbar { width: 4px; }
+.left-scroll::-webkit-scrollbar-track { background: transparent; }
+.left-scroll::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+/* Code textarea */
+.code-wrap {
+  position: relative;
+  margin-bottom: 0.875rem;
+}
+
+.code-label {
+  font-family: var(--mono);
+  font-size: 0.55rem;
+  color: var(--text3);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 0.35rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.code-label button {
+  background: transparent;
+  border: none;
+  font-family: var(--mono);
+  font-size: 0.55rem;
+  color: var(--text3);
+  cursor: pointer;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: color 0.15s;
+}
+.code-label button:hover { color: var(--accent); }
+
+#code-input {
+  width: 100%;
+  min-height: 200px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  line-height: 1.6;
+  padding: 0.75rem;
+  outline: none;
+  resize: vertical;
+  tab-size: 2;
+  transition: border-color 0.15s;
+}
+#code-input:focus { border-color: var(--border2); }
+
+/* Options */
+.opt-group { margin-bottom: 0.875rem; }
+
+.opt-label {
+  font-family: var(--mono);
+  font-size: 0.55rem;
+  color: var(--text3);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 0.35rem;
+}
+
+.opt-input {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  color: var(--text2);
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  padding: 0.4rem 0.6rem;
+  outline: none;
+  transition: border-color 0.15s, color 0.15s;
+}
+.opt-input:focus { border-color: var(--border2); color: var(--text); }
+.opt-input::placeholder { color: var(--text3); }
+
+.opt-input-small {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  color: var(--text2);
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  padding: 0.4rem 0.6rem;
+  outline: none;
+  resize: vertical;
+  min-height: 56px;
+  transition: border-color 0.15s, color 0.15s;
+}
+.opt-input-small:focus { border-color: var(--border2); color: var(--text); }
+.opt-input-small::placeholder { color: var(--text3); }
+
+.opt-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+
+/* Highlight color picker */
+.hl-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.hl-color {
+  width: 28px;
+  height: 28px;
+  border-radius: 3px;
+  border: 1px solid var(--border2);
+  background: transparent;
+  cursor: pointer;
+  padding: 2px;
+}
+
+/* Window style pills */
+.window-pills { display: flex; gap: 4px; flex-wrap: wrap; }
+.window-pill {
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  padding: 0.25rem 0.55rem;
+  border-radius: 2px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text3);
+  cursor: pointer;
+  transition: all 0.15s;
+  letter-spacing: 0.05em;
+}
+.window-pill:hover { border-color: var(--border2); color: var(--text2); }
+.window-pill.active { border-color: var(--accent); color: var(--accent); background: rgba(87,229,200,0.06); }
+
+/* Padding slider */
+.slider-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.slider-row input[type="range"] {
+  flex: 1;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 2px;
+  background: var(--border2);
+  outline: none;
+  cursor: pointer;
+  border-radius: 2px;
+}
+
+.slider-row input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px; height: 12px;
+  background: var(--accent);
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.slider-val {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  color: var(--accent);
+  min-width: 28px;
+  text-align: right;
+}
+
+/* Checkbox */
+.check-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.check-row input[type="checkbox"] { accent-color: var(--accent); cursor: pointer; }
+
+.check-label {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  color: var(--text2);
+}
+
+/* divider */
+.divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 0.875rem 0;
+}
+
+/* ── Right panel: preview ── */
+.right {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+.preview-toolbar {
+  height: 36px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 1rem;
+  gap: 0.75rem;
+  flex-shrink: 0;
+}
+
+.preview-label {
+  font-family: var(--mono);
+  font-size: 0.55rem;
+  color: var(--text3);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.width-ctrl { display: flex; align-items: center; gap: 0.35rem; margin-left: auto; }
+.width-btn {
+  background: transparent;
+  border: 1px solid var(--border2);
+  border-radius: 2px;
+  color: var(--text2);
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  width: 22px; height: 22px;
+  cursor: pointer;
+  transition: all 0.15s;
+  display: flex; align-items: center; justify-content: center;
+}
+.width-btn:hover { border-color: var(--accent); color: var(--accent); }
+.width-val {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  color: var(--text2);
+  min-width: 36px;
+  text-align: center;
+}
+
+.font-ctrl { display: flex; align-items: center; gap: 0.35rem; }
+.font-val {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  color: var(--text2);
+  min-width: 24px;
+  text-align: center;
+}
+
+.preview-area {
+  flex: 1;
+  overflow: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.preview-area::-webkit-scrollbar { width: 6px; height: 6px; }
+.preview-area::-webkit-scrollbar-track { background: transparent; }
+.preview-area::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+/* ── The actual snapshot card ── */
+#snapshot-card {
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 32px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.04);
+  position: relative;
+  display: inline-block;
+}
+
+.card-bg-dark  { background: #0d1117; }
+.card-bg-dim   { background: #1a1a2e; }
+.card-bg-light { background: #f6f8fa; }
+.card-bg-gradient { background: linear-gradient(135deg, #0f0c29, #302b63, #24243e); }
+.card-bg-ocean { background: linear-gradient(135deg, #051937, #004d7a, #008793); }
+
+.card-padding-sm { padding: 24px; }
+.card-padding-md { padding: 40px; }
+.card-padding-lg { padding: 56px; }
+.card-padding-xl { padding: 72px; }
+
+/* Window chrome */
+.window-chrome {
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+}
+
+.window-titlebar {
+  height: 36px;
+  display: flex;
+  align-items: center;
+  padding: 0 1rem;
+  gap: 0.75rem;
+  position: relative;
+}
+
+.window-titlebar.dark-bar  { background: #1c1c1e; }
+.window-titlebar.light-bar { background: #e8e8e8; }
+.window-titlebar.none-bar  { display: none; }
+
+.traffic-lights { display: flex; gap: 6px; }
+.tl {
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.tl-red    { background: #ff5f57; }
+.tl-yellow { background: #febc2e; }
+.tl-green  { background: #28c840; }
+
+.tl-dark-red    { background: #3a2020; }
+.tl-dark-yellow { background: #3a3420; }
+.tl-dark-green  { background: #1a3020; }
+
+.window-filename {
+  position: absolute;
+  left: 50%; transform: translateX(-50%);
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  opacity: 0.5;
+  white-space: nowrap;
+}
+.window-filename.dark-text  { color: #ccc; }
+.window-filename.light-text { color: #333; }
+
+/* Code block */
+.code-block {
+  position: relative;
+  overflow-x: auto;
+}
+
+.code-block.dark-code  { background: #0d1117; }
+.code-block.light-code { background: #f6f8fa; }
+
+.code-table {
+  border-collapse: collapse;
+  width: 100%;
+  font-family: var(--mono);
+}
+
+.ln {
+  padding: 0 1rem 0 1.25rem;
+  text-align: right;
+  user-select: none;
+  width: 1%;
+  white-space: nowrap;
+  vertical-align: top;
+}
+
+.ln.dark-ln  { color: rgba(255,255,255,0.2); }
+.ln.light-ln { color: rgba(0,0,0,0.25); }
+
+.lc {
+  padding: 0 1.5rem 0 0.5rem;
+  white-space: pre;
+  position: relative;
+}
+
+tr.hl-line .ln,
+tr.hl-line .lc { background-color: rgba(255,255,255,0.06); }
+
+tr.diff-add .lc { background: rgba(61,220,132,0.12); }
+tr.diff-add .lc::before {
+  content: '+';
+  position: absolute;
+  left: 0;
+  color: var(--green);
+  font-size: 0.7em;
+}
+
+tr.diff-del .lc { background: rgba(255,95,107,0.12); }
+tr.diff-del .lc::before {
+  content: '−';
+  position: absolute;
+  left: 0;
+  color: var(--red);
+  font-size: 0.7em;
+}
+
+/* Callout bubble */
+.callout {
+  display: inline-block;
+  margin-left: 1rem;
+  background: rgba(87,229,200,0.12);
+  border: 1px solid rgba(87,229,200,0.3);
+  border-radius: 4px;
+  padding: 1px 8px;
+  font-family: var(--mono);
+  font-size: 0.75em;
+  color: var(--accent);
+  white-space: nowrap;
+  vertical-align: middle;
+  position: relative;
+}
+
+.callout::before {
+  content: '';
+  position: absolute;
+  left: -6px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 5px solid transparent;
+  border-right-color: rgba(87,229,200,0.3);
+}
+
+/* devkoan watermark */
+.dk-watermark {
+  padding: 6px 16px 10px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.dk-badge {
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  opacity: 0.35;
+}
+
+.dk-badge.dark-badge  { color: #fff; }
+.dk-badge.light-badge { color: #000; }
+
+/* Light theme code overrides */
+.hljs-light { background: #f6f8fa; color: #24292e; }
+
+/* Footer */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 0.6rem 1.25rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+  background: var(--bg2);
+}
+
+.footer-links { display: flex; gap: 1.25rem; }
+.footer-links a {
+  font-family: var(--mono);
+  font-size: 0.55rem;
+  color: var(--text3);
+  text-decoration: none;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: color 0.15s;
+}
+.footer-links a:hover { color: var(--accent); }
+.footer-copy { font-family: var(--mono); font-size: 0.52rem; color: var(--text3); }
+
+@media (max-width: 700px) {
+  .body { grid-template-columns: 1fr; }
+  .left { max-height: 50vh; }
+  .header-center { display: none; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <a href="https://devkoan.substack.com" class="logo">devkoan</a>
+
+  <div class="header-center">
+    <select class="lang-select" id="lang-select" onchange="render()">
+      <option value="swift">Swift</option>
+      <option value="python">Python</option>
+      <option value="javascript">JavaScript</option>
+      <option value="typescript">TypeScript</option>
+      <option value="kotlin">Kotlin</option>
+      <option value="java">Java</option>
+      <option value="go">Go</option>
+      <option value="rust">Rust</option>
+      <option value="css">CSS</option>
+      <option value="bash">Bash</option>
+      <option value="plaintext">Plain text</option>
+    </select>
+
+    <input class="filename-input" id="filename-input" value="ContentView.swift" oninput="render()" placeholder="filename.swift">
+
+    <div class="theme-pills">
+      <button class="theme-pill active" onclick="setTheme('dark',this)">Dark</button>
+      <button class="theme-pill" onclick="setTheme('light',this)">Light</button>
+      <button class="theme-pill" onclick="setTheme('gradient',this)">Gradient</button>
+      <button class="theme-pill" onclick="setTheme('ocean',this)">Ocean</button>
+    </div>
+  </div>
+
+  <div class="header-right">
+    <button class="hbtn" onclick="copyImage()">Copy PNG</button>
+    <button class="hbtn primary" onclick="saveImage()">Save PNG</button>
+  </div>
+</header>
+
+<div class="body">
+
+  <!-- Left panel -->
+  <div class="left">
+    <div class="left-scroll">
+
+      <!-- Code input -->
+      <div class="code-wrap">
+        <div class="code-label">
+          <span>Code</span>
+          <button onclick="loadDemo()">Load demo</button>
+        </div>
+        <textarea id="code-input" spellcheck="false" placeholder="Paste your code here..."
+          oninput="render()" onkeydown="handleTab(event)"></textarea>
+      </div>
+
+      <hr class="divider">
+
+      <!-- Highlight lines -->
+      <div class="opt-group">
+        <div class="opt-label">Highlight lines</div>
+        <div class="hl-row">
+          <input class="opt-input" id="hl-lines" placeholder="e.g. 3,5,8-10" oninput="render()">
+          <input type="color" class="hl-color" id="hl-color" value="#57e5c8" oninput="render()">
+        </div>
+      </div>
+
+      <!-- Diff -->
+      <div class="opt-group">
+        <div class="opt-row">
+          <div>
+            <div class="opt-label">Added lines (+)</div>
+            <input class="opt-input" id="diff-add" placeholder="e.g. 5,15-18" oninput="render()">
+          </div>
+          <div>
+            <div class="opt-label">Deleted lines (−)</div>
+            <input class="opt-input" id="diff-del" placeholder="e.g. 7,9" oninput="render()">
+          </div>
+        </div>
+      </div>
+
+      <!-- Callouts -->
+      <div class="opt-group">
+        <div class="opt-label">Callout annotations</div>
+        <textarea class="opt-input-small" id="callouts" placeholder="4: key logic here&#10;11: ← fix this" oninput="render()"></textarea>
+      </div>
+
+      <hr class="divider">
+
+      <!-- Window style -->
+      <div class="opt-group">
+        <div class="opt-label">Window style</div>
+        <div class="window-pills">
+          <button class="window-pill active" data-win="mac" onclick="setWindow('mac',this)">macOS</button>
+          <button class="window-pill" data-win="minimal" onclick="setWindow('minimal',this)">Minimal</button>
+          <button class="window-pill" data-win="none" onclick="setWindow('none',this)">None</button>
+        </div>
+      </div>
+
+      <!-- Padding -->
+      <div class="opt-group">
+        <div class="opt-label">Padding</div>
+        <div class="slider-row">
+          <input type="range" id="padding-sl" min="0" max="3" step="1" value="1" oninput="updatePadding(this)">
+          <span class="slider-val" id="padding-val">md</span>
+        </div>
+      </div>
+
+      <!-- Options -->
+      <div class="opt-group">
+        <div style="display:flex;flex-direction:column;gap:0.5rem">
+          <label class="check-row">
+            <input type="checkbox" id="show-ln" checked onchange="render()">
+            <span class="check-label">Line numbers</span>
+          </label>
+          <label class="check-row">
+            <input type="checkbox" id="show-watermark" checked onchange="render()">
+            <span class="check-label">devkoan watermark</span>
+          </label>
+          <label class="check-row">
+            <input type="checkbox" id="word-wrap" onchange="render()">
+            <span class="check-label">Word wrap</span>
+          </label>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Right: preview -->
+  <div class="right">
+    <div class="preview-toolbar">
+      <span class="preview-label">Preview</span>
+
+      <div class="font-ctrl">
+        <button class="width-btn" onclick="changeFont(-1)">−</button>
+        <span class="font-val" id="font-val">13px</span>
+        <button class="width-btn" onclick="changeFont(1)">+</button>
+      </div>
+
+      <div class="width-ctrl">
+        <button class="width-btn" onclick="changeWidth(-40)">◀</button>
+        <span class="width-val" id="width-val">600</span>
+        <button class="width-btn" onclick="changeWidth(40)">▶</button>
+      </div>
+    </div>
+
+    <div class="preview-area">
+      <div id="snapshot-card" class="card-bg-dark card-padding-md">
+        <!-- rendered by JS -->
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <div class="footer-links">
+    <a href="./about.html">About</a>
+    <a href="https://devkoan.substack.com" target="_blank">Newsletter</a>
+    <a href="https://devkoan.github.io/devkoan-tools/">All Tools</a>
+    <a href="https://devkoan.github.io/pricing-calculator/">Pricing Calculator</a>
+  </div>
+  <span class="footer-copy">devkoan © 2026 · Free, no account</span>
+</footer>
+
+<script>
+/* ── State ── */
+let currentTheme  = 'dark';
+let currentWindow = 'mac';
+let currentPad    = 'md';
+let previewWidth  = 600;
+let fontSize      = 13;
+
+const DEMO_CODE = `import SwiftUI
+
+struct ContentView: View {
+    @State private var count = 0
+
+    var body: some View {
+        VStack(spacing: 20) {
+            Text("Count: \\(count)")
+                .font(.largeTitle)
+                .fontWeight(.bold)
+
+            Button("Tap me") {
+                count += 1
+            }
+            .buttonStyle(.borderedProminent)
+        }
+        .padding()
+    }
+}`;
+
+/* ── Parse helpers ── */
+function parseLines(str) {
+  const result = new Set();
+  if (!str.trim()) return result;
+  str.split(',').forEach(part => {
+    part = part.trim();
+    if (part.includes('-')) {
+      const [a, b] = part.split('-').map(Number);
+      for (let i = a; i <= b; i++) result.add(i);
+    } else {
+      const n = parseInt(part);
+      if (!isNaN(n)) result.add(n);
+    }
+  });
+  return result;
+}
+
+function parseCallouts(str) {
+  const map = {};
+  if (!str.trim()) return map;
+  str.split('\n').forEach(line => {
+    const m = line.match(/^(\d+)\s*:\s*(.+)$/);
+    if (m) map[parseInt(m[1])] = m[2].trim();
+  });
+  return map;
+}
+
+/* ── Theme config ── */
+const THEMES = {
+  dark:     { bg:'card-bg-dark',     bar:'dark-bar',  filename:'dark-text',  code:'dark-code',  ln:'dark-ln',  badge:'dark-badge',  hljs:'github-dark' },
+  light:    { bg:'card-bg-light',    bar:'light-bar', filename:'light-text', code:'light-code', ln:'light-ln', badge:'light-badge', hljs:'github' },
+  gradient: { bg:'card-bg-gradient', bar:'dark-bar',  filename:'dark-text',  code:'dark-code',  ln:'dark-ln',  badge:'dark-badge',  hljs:'github-dark' },
+  ocean:    { bg:'card-bg-ocean',    bar:'dark-bar',  filename:'dark-text',  code:'dark-code',  ln:'dark-ln',  badge:'dark-badge',  hljs:'github-dark' },
+};
+
+const PADDING_CLASSES = ['card-padding-sm','card-padding-md','card-padding-lg','card-padding-xl'];
+const PADDING_LABELS  = ['sm','md','lg','xl'];
+
+/* ── Render ── */
+function render() {
+  const code     = document.getElementById('code-input').value;
+  const lang     = document.getElementById('lang-select').value;
+  const filename = document.getElementById('filename-input').value;
+  const hlLines  = parseLines(document.getElementById('hl-lines').value);
+  const hlColor  = document.getElementById('hl-color').value;
+  const diffAdd  = parseLines(document.getElementById('diff-add').value);
+  const diffDel  = parseLines(document.getElementById('diff-del').value);
+  const callouts = parseCallouts(document.getElementById('callouts').value);
+  const showLn   = document.getElementById('show-ln').checked;
+  const showWm   = document.getElementById('show-watermark').checked;
+  const wordWrap = document.getElementById('word-wrap').checked;
+
+  const t = THEMES[currentTheme];
+  const card = document.getElementById('snapshot-card');
+
+  // Syntax highlight
+  let highlighted;
+  try {
+    if (lang === 'plaintext') {
+      highlighted = escHtml(code);
+    } else {
+      highlighted = hljs.highlight(code, { language: lang, ignoreIllegals: true }).value;
+    }
+  } catch(e) {
+    highlighted = escHtml(code);
+  }
+
+  // Split into lines
+  const rawLines = code.split('\n');
+  const hlLines2 = highlighted.split('\n');
+
+  // Build rows
+  let rows = '';
+  for (let i = 0; i < rawLines.length; i++) {
+    const lineNum = i + 1;
+    const isHl    = hlLines.has(lineNum);
+    const isAdd   = diffAdd.has(lineNum);
+    const isDel   = diffDel.has(lineNum);
+    const callout = callouts[lineNum];
+
+    let cls = '';
+    if (isHl)  cls += ' hl-line';
+    if (isAdd) cls += ' diff-add';
+    if (isDel) cls += ' diff-del';
+
+    const hlStyle = isHl ? `style="background-color:${hlColor}22"` : '';
+    const lcStyle = `style="font-size:${fontSize}px;line-height:1.6;${wordWrap?'white-space:pre-wrap;word-break:break-all;':''}"`;
+
+    const calloutHtml = callout
+      ? `<span class="callout">${escHtml(callout)}</span>`
+      : '';
+
+    rows += `<tr class="${cls.trim()}" ${hlStyle}>
+      ${showLn ? `<td class="ln ${t.ln}" style="font-size:${fontSize}px;line-height:1.6;opacity:0.35">${lineNum}</td>` : ''}
+      <td class="lc" ${lcStyle}>${hlLines2[i] || ''}${calloutHtml}</td>
+    </tr>`;
+  }
+
+  // Window titlebar
+  let titlebarHtml = '';
+  if (currentWindow === 'mac') {
+    const tl = currentTheme === 'light'
+      ? `<div class="tl tl-red"></div><div class="tl tl-yellow"></div><div class="tl tl-green"></div>`
+      : `<div class="tl tl-red"></div><div class="tl tl-yellow"></div><div class="tl tl-green"></div>`;
+    titlebarHtml = `<div class="window-titlebar ${t.bar}">
+      <div class="traffic-lights">${tl}</div>
+      ${filename ? `<span class="window-filename ${t.filename}">${escHtml(filename)}</span>` : ''}
+    </div>`;
+  } else if (currentWindow === 'minimal') {
+    titlebarHtml = `<div class="window-titlebar ${t.bar}" style="height:24px">
+      ${filename ? `<span class="window-filename ${t.filename}" style="font-size:0.58rem">${escHtml(filename)}</span>` : ''}
+    </div>`;
+  }
+
+  // Watermark
+  const wmHtml = showWm
+    ? `<div class="dk-watermark"><span class="dk-badge ${t.badge}">devkoan.substack.com</span></div>`
+    : '';
+
+  // Apply theme classes
+  card.className = '';
+  card.classList.add(t.bg);
+  PADDING_CLASSES.forEach(c => card.classList.remove(c));
+  card.classList.add('card-padding-' + currentPad);
+
+  card.style.width = previewWidth + 'px';
+
+  card.innerHTML = `
+    <div class="window-chrome">
+      ${titlebarHtml}
+      <div class="code-block ${t.code}">
+        <table class="code-table"><tbody>${rows}</tbody></table>
+      </div>
+      ${wmHtml}
+    </div>
+  `;
+
+  // Apply hl-line custom color via inline style override
+  card.querySelectorAll('tr.hl-line').forEach(row => {
+    const hex = hlColor;
+    row.style.backgroundColor = hex + '18';
+  });
+}
+
+function escHtml(str) {
+  return str
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
+}
+
+/* ── Controls ── */
+function setTheme(name, el) {
+  currentTheme = name;
+  document.querySelectorAll('.theme-pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  render();
+}
+
+function setWindow(name, el) {
+  currentWindow = name;
+  document.querySelectorAll('.window-pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  render();
+}
+
+function updatePadding(input) {
+  const idx = parseInt(input.value);
+  currentPad = PADDING_LABELS[idx];
+  document.getElementById('padding-val').textContent = PADDING_LABELS[idx];
+  render();
+}
+
+function changeWidth(delta) {
+  previewWidth = Math.max(320, Math.min(1200, previewWidth + delta));
+  document.getElementById('width-val').textContent = previewWidth;
+  render();
+}
+
+function changeFont(delta) {
+  fontSize = Math.max(10, Math.min(20, fontSize + delta));
+  document.getElementById('font-val').textContent = fontSize + 'px';
+  render();
+}
+
+function handleTab(e) {
+  if (e.key === 'Tab') {
+    e.preventDefault();
+    const ta = e.target;
+    const s = ta.selectionStart;
+    const v = ta.value;
+    ta.value = v.substring(0, s) + '  ' + v.substring(ta.selectionEnd);
+    ta.selectionStart = ta.selectionEnd = s + 2;
+    render();
+  }
+  if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+    e.preventDefault();
+    render();
+  }
+}
+
+function loadDemo() {
+  document.getElementById('code-input').value = DEMO_CODE;
+  document.getElementById('filename-input').value = 'ContentView.swift';
+  document.getElementById('lang-select').value = 'swift';
+  document.getElementById('hl-lines').value = '8-11';
+  document.getElementById('callouts').value = '8: body of the view\n12: state mutation here';
+  render();
+}
+
+/* ── Export ── */
+async function getCanvas() {
+  const card = document.getElementById('snapshot-card');
+  return await html2canvas(card, {
+    scale: 3,
+    backgroundColor: null,
+    logging: false,
+    useCORS: true,
+  });
+}
+
+async function saveImage() {
+  const filename = document.getElementById('filename-input').value || 'code';
+  const canvas = await getCanvas();
+  const a = document.createElement('a');
+  a.download = filename.replace(/\.[^.]+$/, '') + '-snapshot.png';
+  a.href = canvas.toDataURL('image/png');
+  a.click();
+}
+
+async function copyImage() {
+  try {
+    const canvas = await getCanvas();
+    canvas.toBlob(async blob => {
+      await navigator.clipboard.write([
+        new ClipboardItem({ 'image/png': blob })
+      ]);
+      const btn = document.querySelector('.hbtn:not(.primary)');
+      const orig = btn.textContent;
+      btn.textContent = 'Copied';
+      setTimeout(() => btn.textContent = orig, 1500);
+    });
+  } catch(e) {
+    alert('Copy failed — try Save PNG instead.');
+  }
+}
+
+/* ── Init ── */
+loadDemo();
+</script>
+</body>
+</html>
